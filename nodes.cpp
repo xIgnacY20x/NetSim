@@ -1,4 +1,4 @@
-#include "nodes.hxx"
+#include "nodes.hpp"
 
 void PackageSender::push_package(Package&& package) {
     ElementID package_id = package.get_id();
@@ -8,7 +8,7 @@ void PackageSender::push_package(Package&& package) {
 
 void PackageSender::send_package() {
     if (buff_) {
-        IPackageReceiver* receiver = receiver_preferences_.choose_receiver();
+        IPackageReceiver *receiver = receiver_preferences_.choose_receiver();
         if (receiver) {
             receiver->receive_package(std::move(*buff_));
             buff_.reset();
@@ -16,32 +16,32 @@ void PackageSender::send_package() {
     }
 }
 
-void ReceiverPreferences::add_receiver(IPackageReceiver* r) {
+void ReceiverPreferences::add_receiver(IPackageReceiver *r) {
     size_t num_of_receivers = prefs_.size();
     double new_probability = 1.0 / (num_of_receivers + 1);
 
-    for (auto& rec : prefs_) {
+    for (auto &rec : prefs_) {
         rec.second = new_probability;
     }
     prefs_[r] = new_probability;
 }
 
-void ReceiverPreferences::remove_receiver(IPackageReceiver* r) {
+void ReceiverPreferences::remove_receiver(IPackageReceiver *r) {
     size_t num_of_receivers = prefs_.size();
     prefs_.erase(r);
 
     if (num_of_receivers > 1) {
         double new_probability = 1.0 / (num_of_receivers - 1);
-        for (auto& rec : prefs_) {
+        for (auto &rec : prefs_) {
             rec.second = new_probability;
         }
     }
 }
 
-IPackageReceiver* ReceiverPreferences::choose_receiver() {
+IPackageReceiver *ReceiverPreferences::choose_receiver() {
     double prob = probability_generated_();
     double cumulative_probability = 0.0;
-    for (const auto& rec : prefs_) {
+    for (const auto &rec : prefs_) {
         cumulative_probability += rec.second;
         if (prob <= cumulative_probability) {
             return rec.first;
@@ -70,8 +70,7 @@ void Ramp::deliver_goods(Time t) {
         buff_ = Package(id_);
         push_package(Package());
         t_ = t;
-    }
-    else if (t - t_ == delivery_interval_) {
+    } else if (t - t_ == delivery_interval_) {
         push_package(Package());
     }
 }

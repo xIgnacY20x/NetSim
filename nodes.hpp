@@ -11,6 +11,16 @@
 #include <optional>
 
 
+enum class NodeColor {
+    UNVISITED, VISITED, VERIFIED
+}
+
+
+enum class ReceiverType {
+    STOREHOUSE, WORKER
+}
+
+
 class IPackageReceiver {
 public:
     virtual IPackageStockpile::const_iterator begin() const = 0;
@@ -19,6 +29,7 @@ public:
     virtual IPackageStockpile::const_iterator cend() const = 0;
 
     virtual void receive_package(Package&& p) = 0;
+    virtual ReceiverType get_receiver_type() = 0;
     virtual ElementID get_id() const = 0;
 
     virtual ~IPackageReceiver() = default;
@@ -77,6 +88,7 @@ public:
     IPackageStockpile::const_iterator cend() const { return s_->cend(); }
 
     void receive_package(Package&& p) { s_->push(std::move(p)); }
+    ReceiverType get_receiver_type() { return ReceiverType::STOREHOUSE};
     ElementID get_id() const { return id_; };
 
 private:
@@ -100,6 +112,7 @@ public:
     IPackageStockpile::const_iterator cend() const { return queue_->cend(); }
 
     void receive_package(Package&& p) { queue_->push(std::move(p)); };
+    ReceiverType get_receiver_type() { return ReceiverType::WORKER };
     ElementID get_id() const { return id_; };
 
 private:
