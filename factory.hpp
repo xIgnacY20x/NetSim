@@ -92,6 +92,47 @@ private:
     void remove_receiver(NodeCollection<Node&> collection, ElementID id);
 };
 
+template<class Node>
+void Factory::remove_receiver(NodeCollection<Node>& collection, ElementID id) {
 
+    auto iter = collection.find_by_id(id);
+
+    auto receiver_ptr = dynamic_cast<IPackageReceiver*>(iter);
+
+    for (auto& ramp: cont_r) {
+        auto& _preferences = ramp.receiver_preferences_.get_preferences();
+        for (auto _preference: _preferences) {
+            if (_preference.first == receiver_ptr) {
+                ramp.receiver_preferences_.remove_receiver(receiver_ptr);
+                break;
+            }
+        }
+    }
+
+    for (auto& worker: cont_w) {
+        auto& _preferences = worker.receiver_preferences_.get_preferences();
+        for (auto _preference: _preferences) {
+            if (_preference.first == receiver_ptr) {
+                worker.receiver_preferences_.remove_receiver(receiver_ptr);
+                break;
+            }
+        }
+    }
+}
+
+enum class ElementType {
+    RAMP, WORKER, STOREHOUSE, LINK
+};
+
+struct ParsedLineData {
+    ElementType element_type;
+    std::map<std::string, std::string> parameters;
+};
+
+ParsedLineData parse_line(std::string& line);
+
+Factory load_factory_structure(std::istream& is);
+
+void save_factory_structure(Factory& factory, std::ostream& os);
 
 #endif //FACTORY_HPP
