@@ -1,11 +1,10 @@
 #ifndef FACTORY_HPP
 #define FACTORY_HPP
 
-#include <vector>
-#include <algorithm>
-#include <stdexcept>
-#include "nodes.hpp"
-#include "storage_types.hpp"
+#include <bits/stdc++.h>
+#include "nodes.hxx"
+#include "storage_types.hxx"
+
 
 bool has_reachable_storehouse(const PackageSender* sender, std::map<const PackageSender*, NodeColor>& colors_of_nodes);
 
@@ -16,21 +15,19 @@ public:
 
 enum class ElementType {
     LINK, STOREHOUSE, RAMP, WORKER 
-}
+};
 
 struct ParsedLineData {
     ElementType elem_type;
     std::map<std::string, std::string> params;
-}
+};
 
 ParsedLineData parse_line(std::string& line);
-Factory load_factory_structure(std::istream& is);;
-void save_factory_structure(Factory& factory, std::ostream& os);
 
 template<typename Node>
 class NodeCollection {
 public:
-    using container_t = typename std_container_t<Node>;
+    using container_t = typename std::list<Node>;
     using const_iterator = typename container_t::const_iterator;
     using iterator = typename container_t::iterator;
 
@@ -39,20 +36,20 @@ public:
     const_iterator begin() const { return c_.cbegin(); }
     const_iterator cbegin() const { return c_.cbegin(); }
 
-    iterator end()) { return c_.end(); }
+    iterator end() { return c_.end(); }
     const_iterator end() const { return c_.cend(); }
-    const_iterator end() const { return c_.cend(); }
+    const_iterator cend() const { return c_.cend(); }
 
 
     void add(Node&& node) { c_.push_back(std::move(node)); }
-    void remove_by_id(ElementID id);
+    void remove_by_id(ElementID id) { c_.remove_if([id](const Node& n) { return n.get_id() == id; }); }
 
     NodeCollection<Node>::const_iterator find_by_id(ElementID id) const;
     NodeCollection<Node>::iterator find_by_id(ElementID id);
 
 private:
     container_t c_;
-} 
+};
 
 
 class Factory {
@@ -89,50 +86,10 @@ private:
     NodeCollection<Worker> workers_;
 
     template<class Node>
-    void remove_receiver(NodeCollection<Node&> collection, ElementID id);
+    void remove_receiver(NodeCollection<Node>& collection, ElementID id);
 };
 
-template<class Node>
-void Factory::remove_receiver(NodeCollection<Node>& collection, ElementID id) {
-
-    auto iter = collection.find_by_id(id);
-
-    auto receiver_ptr = dynamic_cast<IPackageReceiver*>(iter);
-
-    for (auto& ramp: cont_r) {
-        auto& _preferences = ramp.receiver_preferences_.get_preferences();
-        for (auto _preference: _preferences) {
-            if (_preference.first == receiver_ptr) {
-                ramp.receiver_preferences_.remove_receiver(receiver_ptr);
-                break;
-            }
-        }
-    }
-
-    for (auto& worker: cont_w) {
-        auto& _preferences = worker.receiver_preferences_.get_preferences();
-        for (auto _preference: _preferences) {
-            if (_preference.first == receiver_ptr) {
-                worker.receiver_preferences_.remove_receiver(receiver_ptr);
-                break;
-            }
-        }
-    }
-}
-
-enum class ElementType {
-    RAMP, WORKER, STOREHOUSE, LINK
-};
-
-struct ParsedLineData {
-    ElementType element_type;
-    std::map<std::string, std::string> parameters;
-};
-
-ParsedLineData parse_line(std::string& line);
-
-Factory load_factory_structure(std::istream& is);
-
-void save_factory_structure(Factory& factory, std::ostream& os);
+Factory load_factory_structure(std::istream& input_stream);;
+void save_factory_structure(Factory& factory, std::ostream& output_stream);
 
 #endif //FACTORY_HPP

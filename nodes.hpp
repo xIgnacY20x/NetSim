@@ -1,24 +1,23 @@
 #ifndef NODES_HPP
 #define NODES_HPP
 
-#include "helpers.hxx"
-#include "package.hxx"
-#include "storage_types.hxx"
 #include "types.hxx"
-#include <map>
+#include "package.hxx"
+#include "helpers.hxx"
+#include "storage_types.hxx"
 #include <memory>
 #include <utility>
 #include <optional>
-
+#include <map>
 
 enum class NodeColor {
     UNVISITED, VISITED, VERIFIED
-}
+};
 
 
 enum class ReceiverType {
     STOREHOUSE, WORKER
-}
+};
 
 
 class IPackageReceiver {
@@ -88,7 +87,7 @@ public:
     IPackageStockpile::const_iterator cend() const { return s_->cend(); }
 
     void receive_package(Package&& p) { s_->push(std::move(p)); }
-    ReceiverType get_receiver_type() { return ReceiverType::STOREHOUSE};
+    ReceiverType get_receiver_type() { return ReceiverType::STOREHOUSE; }
     ElementID get_id() const { return id_; };
 
 private:
@@ -103,7 +102,7 @@ public:
 
     void do_work(Time t);
 
-    TimeOffset get_processing_duration() { return processing_duration_; }
+    TimeOffset get_processing_duration() const { return processing_duration_; }
     Time get_package_processing_start_time() { return t_; }
 
     IPackageStockpile::const_iterator begin() const { return queue_->begin(); }
@@ -111,9 +110,10 @@ public:
     IPackageStockpile::const_iterator end() const { return queue_->end(); }
     IPackageStockpile::const_iterator cend() const { return queue_->cend(); }
 
-    void receive_package(Package&& p) { queue_->push(std::move(p)); };
-    ReceiverType get_receiver_type() { return ReceiverType::WORKER };
-    ElementID get_id() const { return id_; };
+    void receive_package(Package&& p) { queue_->push(std::move(p)); }
+    ReceiverType get_receiver_type() { return ReceiverType::WORKER; }
+    ElementID get_id() const { return id_; }
+    IPackageQueue* get_queue() const { return queue_.get(); }
 
 private:
     ElementID id_;
@@ -144,4 +144,4 @@ protected:
     std::optional<Package> buff_ = std::nullopt;
 };
 
-#endif //NODES_HPP
+#ENDIF //NODES_HPP
